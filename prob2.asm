@@ -4,7 +4,7 @@ vetor: .word 1 1 4 4 4 7 7 7 0 0 0 1 6 1
 main:
 la x12, vetor
 addi x13, x0, 11
-jal x1, verificacnpj
+jal x1, verificadastro
 beq x0,x0,FIM
 ##### START MODIFIQUE AQUI START #####
 verificacpf: 
@@ -26,7 +26,7 @@ beq x9, x8, OUT_SUM
     sub x6, x6, x9
     # Multiplica e joga no acumulador
     mul x10, x10, x6
-	add x14, x10, x14
+	add x20, x10, x20
     # Incrementa iterador
     addi x9, x9, 1
     # Repete
@@ -35,20 +35,20 @@ OUT_SUM:
 
 # Multiplica por 10
 addi x6, x0, 10
-mul x14, x14, x6
+mul x20, x20, x6
 # Pega o resto na divisão por 11
 addi x6, x6, 1
-rem x14, x14, x6
+rem x20, x20, x6
 
 # Se o resto da divisão for igual a 10, nós o consideramos como 0
 addi x6, x0, 10
-bne x14, x6, NOT_TEN
-	addi x14, x0, 0
+bne x20, x6, NOT_TEN
+	addi x20, x0, 0
 NOT_TEN:
 
 
 
-### Primeiro dígito
+### Segundo dígito
 addi x9, x0, 0
 addi x8, x0, 10
 
@@ -88,7 +88,7 @@ NOT_TEN_2:
 # Confere a validade dos dígitos
 addi x10, x0, 0
 lw x11, 36(x12)
-bne x14, x11, INVALID
+bne x20, x11, INVALID
 	lw x11, 40(x12)
 	bne x15, x11, INVALID
     	addi x10, x10, 1
@@ -104,76 +104,76 @@ verificacnpj:
 lw x10, 0(x12)
 addi x11, x0, 5
 mul x10, x10, x11
-add x14, x10, x14
+add x20, x10, x20
 # 2
 lw x10, 4(x12)
 addi x11, x0, 4
 mul x10, x10, x11
-add x14, x10, x14
+add x20, x10, x20
 # 3
 lw x10, 8(x12)
 addi x11, x0, 3
 mul x10, x10, x11
-add x14, x10, x14
+add x20, x10, x20
 # 4
 lw x10, 12(x12)
 addi x11, x0, 2
 mul x10, x10, x11
-add x14, x10, x14
+add x20, x10, x20
 # 5
 lw x10, 16(x12)
 addi x11, x0, 9
 mul x10, x10, x11
-add x14, x10, x14
+add x20, x10, x20
 # 6
 lw x10, 20(x12)
 addi x11, x0, 8
 mul x10, x10, x11
-add x14, x10, x14
+add x20, x10, x20
 # 7
 lw x10, 24(x12)
 addi x11, x0, 7
 mul x10, x10, x11
-add x14, x10, x14
+add x20, x10, x20
 # 8
 lw x10, 28(x12)
 addi x11, x0, 6
 mul x10, x10, x11
-add x14, x10, x14
+add x20, x10, x20
 # 9
 lw x10, 32(x12)
 addi x11, x0, 5
 mul x10, x10, x11
-add x14, x10, x14
+add x20, x10, x20
 # 10
 lw x10, 36(x12)
 addi x11, x0, 4
 mul x10, x10, x11
-add x14, x10, x14
+add x20, x10, x20
 # 11
 lw x10, 40(x12)
 addi x11, x0, 3
 mul x10, x10, x11
-add x14, x10, x14
+add x20, x10, x20
 # 12 
 lw x10, 44(x12)
 addi x11, x0, 2
 mul x10, x10, x11
-add x14, x10, x14
+add x20, x10, x20
 
 # Módulo por 11
 addi x6, x0, 11
-rem x14, x14, x6
+rem x20, x20, x6
 addi x11, x0, 2
-bge x14, x11, BIG
+bge x20, x11, BIG
 	# Caso o resto da divisão seja menor que 2, o nosso primeiro dígito verificador se torna 0 
-	addi x14, x0, 0
+	addi x20, x0, 0
     beq x0, x0, JUMP
 BIG:
 	addi x6, x0, 11
     addi x11, x0, -1
-    mul x14, x14, x11
-	add x14, x14, x6
+    mul x20, x20, x11
+	add x20, x20, x6
 JUMP:
 
 
@@ -264,7 +264,7 @@ JUMP_2:
 # Confere a validade dos dígitos
 addi x10, x0, 0
 lw x11, 48(x12)
-bne x14, x11, INVALID_2
+bne x20, x11, INVALID_2
 	lw x11, 52(x12)
 	bne x15, x11, INVALID_2
     	addi x10, x10, 1
@@ -272,6 +272,20 @@ INVALID_2:
 
 jalr x0, 0(x1)
 
-verificadastro: jalr x0, 0(x1)
+# Decide se chama cpf ou cnpj
+verificadastro: 
+beq x14, x0, CPF
+	addi sp,sp,-4
+	sw x1, 4(sp)
+    jal x1, verificacnpj
+    lw x1, 4(sp)
+    beq x0, x0, CNPJ
+CPF:
+	addi sp,sp,-4
+	sw x1, 4(sp)
+    jal x1, verificacpf
+    lw x1, 4(sp)
+CNPJ:
+jalr x0, 0(x1)
 ##### END MODIFIQUE AQUI END #####
 FIM: add x1, x0, x10
