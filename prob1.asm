@@ -11,25 +11,49 @@ jal x1, inverte
 beq x0, x0, FIM
 ##### START MODIFIQUE AQUI START #####
 inverte:
-# Carregar valor (a) de vetor[0+i] em uma variável temporária
-lw x10, 0(x12)
-# Carregar valor (b) de vetor[n-i] em outra variável temporária
-lw x11, 0(x13)
-# Escrever "a" na posição vetor[n-i]
-sw x11, 0(x12)
-# Escrever "b" na posição vetor[0+i]
-sw x10, 0(x13)
-# Confere se trocou mesmo
-lw x10, 0(x12)
-lw x11, 0(x13)
-# Incrementar i (min)
-addi x12, x12, 4
-# Decrementar max
-addi x13, x13, -4
-# Checar se cruzou
-bge x13, x12, OUT
-jalr x0, 0(x1)
-OUT:
-jal x1, inverte
+	# empilha
+    addi sp,sp,-12
+    
+    # salva
+    sw x1,8(sp)
+    sw x12, 4(sp)
+    sw x13, 0(sp)
+    
+    # checa
+    bge x13,x12,L1
+    
+    # desempilha
+    addi sp,sp,12
+    
+    # retorna
+    jalr x0,0(x1)
+
+L1: 
+    
+    # itera
+    addi x12,x12,4
+    addi x13,x13,-4
+    
+    # recursa
+    jal x1, inverte
+    
+	# carrega endereços
+	lw x10, 0(sp)
+    lw x11, 4(sp)
+    lw x1, 8(sp)
+    
+    # carrega valores
+    lw x5, 0(x10)
+    lw x6, 0(x11)
+    
+    # escreve valores
+    sw x5, 0(x11)
+    sw x6, 0(x10)
+    
+    # desempilha
+    addi sp, sp, 12
+    
+    # retorna
+    jalr x0, 0(x1)
 ##### END MODIFIQUE AQUI END #####
 FIM: add x1, x0, x10
